@@ -121,6 +121,7 @@ onMounted(async () => {
   );
 
   drawMap(allRows, geo);
+  enableDynamicMarkerSize();
 });
 
 // --- Draw base map ---
@@ -172,6 +173,22 @@ function drawMap(filtered, geo) {
   Plotly.addTraces("map", regionOutlines);
   regionTraceIndices = regionOutlines.map((_, i) => i + 1);
 }
+
+function enableDynamicMarkerSize() {
+  const mapEl = document.getElementById("map");
+
+  mapEl.on("plotly_relayout", (eventData) => {
+    if (!eventData["mapbox.zoom"]) return;
+    
+    const zoom = eventData["mapbox.zoom"];
+
+    // Scale marker size based on zoom
+    const newSize = Math.max(zoom * 0.8, 3);
+
+    Plotly.restyle("map", { "marker.size": newSize }, [0]);
+  });
+}
+
 
 // --- Update map when filters change ---
 function updateMap() {
